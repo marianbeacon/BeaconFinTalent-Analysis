@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beacon FinTalent — Monthly Performance Dashboard</title>
-    <meta name="description" content="Beacon FinTalent digital performance analysis dashboard with monthly breakdowns.">
+    <title>Beacon FinTalent — Performance Dashboard</title>
+    <meta name="description" content="Beacon FinTalent digital performance analysis dashboard.">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
@@ -33,51 +33,29 @@
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #334155; margin: 0; padding: 0; }
         h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; }
 
-        .slide-container {
-            width: 100vw;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        }
-        .slide-content {
-            width: 1920px;
-            max-width: 100%;
-            aspect-ratio: 16/9;
-            transform-origin: center;
-            background: #ffffff;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-        }
-
         .metric-trend-up { color: #16a34a; background: #dcfce7; }
         .metric-trend-down { color: #dc2626; background: #fee2e2; }
         .metric-trend-neutral { color: #475569; background: #f1f5f9; }
 
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade-up { animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .delay-100 { animation-delay: 100ms; }
-        .delay-200 { animation-delay: 200ms; }
-        .delay-300 { animation-delay: 300ms; }
+        .animate-fade-up { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* Month selector pill styles */
+        /* Month selector styles */
         .month-selector {
             display: flex;
-            gap: 0.5rem;
-            background: rgba(241, 245, 249, 0.8);
-            padding: 0.375rem;
-            border-radius: 1rem;
+            gap: 0.25rem;
+            background: #f1f5f9;
+            padding: 0.25rem;
+            border-radius: 0.75rem;
             border: 1px solid #e2e8f0;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
         }
         .month-btn {
-            padding: 0.5rem 1.25rem;
-            border-radius: 0.75rem;
-            font-size: 0.8rem;
+            padding: 0.375rem 0.875rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
             font-weight: 700;
             letter-spacing: 0.05em;
             text-transform: uppercase;
@@ -85,173 +63,263 @@
             background: transparent;
             border: none;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.2s ease;
             white-space: nowrap;
         }
         .month-btn:hover { color: #334155; }
         .month-btn.active {
             background: #ffffff;
             color: #102649;
-            box-shadow: 0 2px 8px rgba(16, 38, 73, 0.12);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
-        /* Pane transition */
-        .pane-content {
-            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .pane-content.inactive {
-            position: absolute;
-            top: 0; left: 0;
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(10px);
-        }
-        .pane-content.active {
-            opacity: 1;
-            transform: translateY(0);
+        .chart-canvas-wrap {
+            min-height: 220px;
+            height: 220px;
         }
 
-        .toggle-btn {
+        /* Info tooltip */
+        .info-tip {
             position: relative;
-            z-index: 10;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
-        .toggle-btn.active-tab {
-            background-color: #ffffff;
-            color: #102649;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        .info-tip-btn {
+            width: 1.125rem;
+            height: 1.125rem;
+            border-radius: 9999px;
+            border: 1.5px solid #94a3b8;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 0.65rem;
+            font-weight: 700;
+            font-style: italic;
+            font-family: Georgia, serif;
+            cursor: help;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            line-height: 1;
         }
+        .info-tip-btn:hover,
+        .info-tip-btn:focus {
+            border-color: #007DB6;
+            color: #007DB6;
+            background: #eff6ff;
+            outline: none;
+        }
+        .info-tip-popup {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: max-content;
+            max-width: 260px;
+            padding: 0.625rem 0.75rem;
+            background: #1e293b;
+            color: #f1f5f9;
+            font-size: 0.7rem;
+            font-weight: 500;
+            line-height: 1.45;
+            border-radius: 0.5rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.2s, visibility 0.2s;
+            z-index: 50;
+            text-transform: none;
+            letter-spacing: normal;
+            white-space: normal;
+        }
+        .info-tip-popup::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #1e293b;
+        }
+        .info-tip:hover .info-tip-popup,
+        .info-tip:focus-within .info-tip-popup {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Executive Analysis styling */
+        .exec-analysis {
+            border-left: 4px solid #102649;
+        }
+        .health-on-track { color: #15803d; background: #dcfce7; border: 1px solid #86efac; }
+        .health-needs-attention { color: #b45309; background: #fef3c7; border: 1px solid #fcd34d; }
+        .health-at-risk { color: #b91c1c; background: #fee2e2; border: 1px solid #fca5a5; }
+
+        .bullet-win { border-left: 3px solid #16a34a; }
+        .bullet-watch { border-left: 3px solid #d97706; }
+        .bullet-action { border-left: 3px solid #007DB6; }
+
+        .chip-win { color: #15803d; background: #dcfce7; }
+        .chip-watch { color: #b45309; background: #fef3c7; }
+        .chip-action { color: #007DB6; background: #e0f2fe; }
     </style>
 </head>
-<body>
-    <div class="slide-container">
-        <div class="slide-content rounded-[2.5rem] p-12 flex flex-col relative overflow-hidden border border-slate-200">
+<body class="bg-slate-50/50 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
 
-            <!-- Header -->
-            <header class="flex justify-between items-end mb-6 z-10 animate-fade-up">
-                <div>
-                    <h2 class="text-beacon-orange font-semibold tracking-[0.2em] uppercase text-sm mb-2">BEACON FinTalent</h2>
-                    <h1 id="headerTitle" class="text-5xl font-heading font-extrabold text-beacon-navy tracking-tight leading-tight">Digital Performance <span class="text-beacon-blue" id="headerMonth">May 2026</span></h1>
-                    <p id="headerSubtitle" class="text-slate-500 mt-1.5 text-lg font-medium">Month-over-Month Comparison</p>
+    <div class="flex-1 w-full">
+        <!-- Top Sticky Header -->
+        <header class="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-sm backdrop-blur-md bg-white/95">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <!-- Logo & Brand Title -->
+                <div class="flex items-center gap-3">
+                    <img src="./fintalent-logo.png" alt="FinTalent Logo" class="h-10 sm:h-12 object-contain" onerror="this.outerHTML=`<div class='h-10 flex items-center justify-center px-4 rounded-xl border border-slate-300 bg-white text-slate-500 font-semibold text-[10px] tracking-wider'>LOGO</div>`">
+                    <div class="border-l border-slate-200 pl-3">
+                        <h2 class="text-beacon-orange font-semibold tracking-[0.2em] uppercase text-[0.6rem] mb-0.5">BEACON FinTalent</h2>
+                        <h1 class="text-base sm:text-lg font-heading font-extrabold text-beacon-navy tracking-tight leading-none">Performance Dashboard</h1>
+                    </div>
                 </div>
-                <div class="flex flex-col items-end gap-3">
-                    <!-- Month Selector -->
+                <!-- Month Selection Controls -->
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                     <div class="month-selector" id="monthSelector">
                         <!-- Buttons injected by JS -->
                     </div>
-                    <span class="text-sm font-semibold bg-slate-100 text-slate-700 px-4.5 py-1.5 rounded-full border border-slate-200 shadow-sm flex items-center gap-2" id="reportingPeriod">
-                        <svg class="w-4 h-4 text-beacon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        <span id="reportingText">May 1, 2026 – June 1, 2026 (30 days)</span>
+                    <span class="text-[0.7rem] sm:text-xs font-semibold bg-slate-100 text-slate-600 px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-1.5" id="reportingPeriod">
+                        <svg class="w-3.5 h-3.5 text-beacon-blue flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span id="reportingText">Loading...</span>
                     </span>
                 </div>
-            </header>
+            </div>
+        </header>
 
-            <!-- Main Content -->
-            <div class="flex-1 z-10 min-h-0 flex flex-col gap-6 animate-fade-up delay-100">
+        <!-- Main Body Workspace -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-6">
+            
+            <!-- Dashboard Title -->
+            <div class="border-b border-slate-200/80 pb-4">
+                <h2 class="text-2xl sm:text-3xl font-heading font-black text-beacon-navy tracking-tight">
+                    Executive Overview: <span class="text-beacon-blue" id="headerMonth">Loading...</span>
+                </h2>
+                <p id="headerSubtitle" class="text-slate-500 mt-1 text-xs sm:text-sm font-medium">Digital Analytics Portal — Month-over-Month Comparison for <a href="https://beaconfintalent.com/" target="_blank" class="text-beacon-blue hover:underline">https://beaconfintalent.com/</a> website performance</p>
+            </div>
 
-                <!-- Overview / Deep Dive Toggle -->
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <img src="./fintalent-logo.png" alt="FinTalent Logo" class="h-14 object-contain" onerror="this.outerHTML=`<div class='h-14 flex items-center justify-center px-6 rounded-xl border-2 border-dashed border-slate-300 bg-white text-slate-400 font-semibold tracking-wider text-sm'>+ ADD FINTALENT-LOGO.PNG</div>`">
-                    </div>
-                    <div class="flex bg-slate-200/70 p-1.5 rounded-xl border border-slate-200/50 shadow-inner">
-                        <button id="btn-overview" class="toggle-btn active-tab px-5 py-2 rounded-lg text-xs font-bold tracking-wider uppercase transition-all duration-200" onclick="switchTab('overview')">Overview</button>
-                        <button id="btn-details" class="toggle-btn px-5 py-2 rounded-lg text-xs font-bold tracking-wider uppercase text-slate-500 hover:text-slate-800 transition-all duration-200" onclick="switchTab('details')">Deep Dive</button>
+            <!-- Executive Summary Alert Box -->
+            <section id="executiveAnalysisSection" class="exec-analysis bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm animate-fade-up">
+                <!-- Injected by JS -->
+            </section>
+
+            <!-- High-level KPI cards (2 columns on mobile, 5 columns on desktop) -->
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-3.5" id="execMetricsGrid">
+                <!-- Injected by JS -->
+            </div>
+
+            <!-- Charts Row (Responsive Grid: 1 col on mobile, 3 cols on lg) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Bar Chart: Impressions vs Clicks -->
+                <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm flex flex-col lg:col-span-2">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4 flex-shrink-0 flex items-center gap-1.5" id="execBarChartHeader">
+                        Impressions vs Clicks (MoM)
+                    </h3>
+                    <div class="flex-1 relative w-full chart-canvas-wrap">
+                        <canvas id="execBarChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Pane Wrapper -->
-                <div class="flex-1 relative min-h-0 w-full">
+                <!-- Doughnut Chart: Google Analytics Traffic Share -->
+                <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div class="w-full">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4 flex-shrink-0 flex items-center gap-1.5" id="execDoughnutTitle">
+                            Google Analytics Traffic share
+                        </h3>
+                        
+                        <!-- Chart & Legend side-by-side or stacked on mobile -->
+                        <div class="flex flex-col sm:flex-row items-center justify-center gap-5 mt-2">
+                            <div class="relative w-[150px] h-[150px] flex-shrink-0">
+                                <canvas id="execDoughnutChart"></canvas>
+                            </div>
+                            <!-- Custom Interactive Legend -->
+                            <div class="flex flex-col gap-1.5 w-full sm:w-auto" id="customLegendContainer">
+                                <!-- Legend injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Click Interactive Analytics Info box -->
+                    <div id="channelAnalysisBox" class="mt-4 bg-slate-50 border border-slate-100 rounded-xl p-3 text-[11px] text-slate-500 font-semibold text-center transition-all duration-300 min-h-[65px] flex items-center justify-center">
+                        Click a traffic channel slice or list item to explore interaction insights.
+                    </div>
+                </div>
+            </div>
 
-                    <!-- ===== OVERVIEW PANE ===== -->
-                    <div id="pane-overview" class="pane-content active flex flex-col h-full gap-6">
-                        <!-- Metrics Row -->
-                        <div class="grid grid-cols-4 gap-5" id="metricsGrid">
+            <!-- Details Row (Responsive Grid: 1 col on mobile, 2 cols on lg) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Performance Insights vs Last Month -->
+                <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800 mb-4 flex-shrink-0 flex items-center gap-1" id="execInsightsHeader">
+                            Performance Insights <span class='text-[10px] text-slate-400 capitalize font-medium ml-1'>(comparing with last month)</span>
+                        </h3>
+                        <div class="flex flex-col gap-3 overflow-y-auto max-h-[350px]" id="execInsightsPanel">
                             <!-- Injected by JS -->
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Charts Row -->
-                        <div class="grid grid-cols-3 gap-6 flex-1 min-h-0">
-                            <!-- Bar Chart -->
-                            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col h-full min-h-0 relative col-span-1">
-                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4 flex-shrink-0">Impressions vs Clicks (MoM)</h3>
-                                <div class="flex-1 relative w-full min-h-0">
-                                    <canvas id="barChart"></canvas>
-                                </div>
+                <!-- Geographical Markets & Flags Column -->
+                <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm flex flex-col justify-between gap-5">
+                    <div>
+                        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">
+                            <div class="flex items-center gap-2" id="execGeoMarketsHeader">
+                                <svg class="w-5 h-5 text-beacon-yellow flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h2m4-3.5a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">Geographical Markets</h3>
                             </div>
-                            <!-- Doughnut Chart -->
-                            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col h-full min-h-0 relative col-span-1">
-                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4 flex-shrink-0" id="doughnutTitle">Traffic Share (May)</h3>
-                                <div class="flex-1 relative w-full min-h-0 flex items-center justify-center">
-                                    <canvas id="doughnutChart"></canvas>
-                                </div>
-                            </div>
-                            <!-- Key Insights Panel -->
-                            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col h-full min-h-0 relative col-span-1">
-                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4 flex-shrink-0">Key Insights</h3>
-                                <div class="flex-1 flex flex-col gap-3 overflow-auto" id="insightsPanel">
-                                    <!-- Injected by JS -->
-                                </div>
-                            </div>
+                            <span class="text-xs bg-slate-100 text-slate-500 font-semibold px-2.5 py-1 rounded-md" id="execCtrBadge">CTR: --</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" id="execGeoMarketsContainer">
+                            <!-- Injected by JS -->
                         </div>
                     </div>
 
-                    <!-- ===== DETAILS PANE ===== -->
-                    <div id="pane-details" class="pane-content inactive flex flex-col h-full gap-5">
-                        <div class="grid grid-cols-3 gap-6 h-full">
-                            <!-- Top Pages -->
-                            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col">
-                                <div class="flex items-center gap-2 mb-4">
-                                    <svg class="w-5 h-5 text-beacon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">Most Visited Pages</h3>
-                                </div>
-                                <div class="flex flex-wrap gap-2.5" id="topPagesContainer">
-                                    <!-- Injected by JS -->
-                                </div>
-                            </div>
-
-                            <!-- Search Queries -->
-                            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col">
-                                <div class="flex items-center gap-2 mb-4">
-                                    <svg class="w-5 h-5 text-beacon-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">Top Organic Search Queries</h3>
-                                </div>
-                                <div class="flex flex-wrap gap-2.5" id="searchQueriesContainer">
-                                    <!-- Injected by JS -->
-                                </div>
-                            </div>
-
-                            <!-- Geographical Markets -->
-                            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-5 h-5 text-beacon-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h2m4-3.5a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">Geographical Markets</h3>
-                                    </div>
-                                    <span class="text-xs bg-slate-100 text-slate-500 font-semibold px-2.5 py-1 rounded-md" id="ctrBadge">CTR: 2.7%</span>
-                                </div>
-                                <div class="flex flex-wrap gap-4" id="geoMarketsContainer">
-                                    <!-- Injected by JS -->
-                                </div>
-                            </div>
+                    <!-- Top Pages list with Rank Badges -->
+                    <div class="pt-4 border-t border-slate-100">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5" id="execTopPagesHeader">
+                            Most Visited Pages (In Order)
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="execTopPagesContainer">
+                            <!-- Injected by JS -->
                         </div>
                     </div>
 
+                    <!-- Organic search keywords -->
+                    <div class="pt-4 border-t border-slate-100">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">Top Organic Search Queries <span class="info-tip"><button type="button" class="info-tip-btn" tabindex="0" aria-label="More information">i</button><span class="info-tip-popup" role="tooltip">Keywords people used to find your site on Google search.</span></span></h4>
+                        <div class="flex flex-wrap gap-2" id="execSearchQueriesContainer">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Footer -->
-            <div class="mt-4 text-slate-500 text-sm flex justify-between items-center z-10 pt-3 animate-fade-up delay-300 border-t border-slate-200 flex-shrink-0">
-                <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span class="font-medium text-slate-500">Data Source: Google Analytics 4 (GA4) & Google Search Console (GSC)</span>
-                </div>
-                <div class="text-right text-slate-400 font-medium">
-                    © 2026 BEACON Holding. Corporate Confidential.
-                </div>
+            <!-- Action Checklist (Recommendations) -->
+            <div id="execRecommendationsSection" class="w-full">
+                <!-- Injected by JS -->
             </div>
-
-        </div>
+        </main>
     </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12 w-full flex-shrink-0 text-xs sm:text-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-500">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="font-medium">Data Source: Google Analytics 4 (GA4) & Google Search Console (GSC)</span>
+            </div>
+            <div class="text-slate-400 font-medium md:text-right">
+                © 2026 BEACON Holding. Corporate Confidential. Delivered by Tech & Data Team
+            </div>
+        </div>
+    </footer>
 
     <script>
         // =====================================================================
@@ -261,9 +329,35 @@
         // 1. Copy any existing month object below
         // 2. Change the key to the new month (e.g., "june2026")
         // 3. Update all the data values
-        // 4. Add the key to the MONTH_ORDER array at the bottom
+        // 4. Write executiveAnalysis (headline, health, win, watch, action)
+        // 5. Add recommendations array to the NEW latest month only; set null on previous month
+        // 6. Add the key to the MONTH_ORDER array at the bottom
         // That's it! The button and all charts will appear automatically.
         // =====================================================================
+
+        const SECTION_TOOLTIPS = {
+            executiveAnalysis: 'Leadership summary for People & Culture and Marketing — answers whether candidates are engaging, employer brand is growing, search is working, and what to do next.',
+            activeUsers: 'GA4 unique visitors this month. A proxy for audience reach and candidate interest in FinTalent.',
+            totalImpressions: 'Google Search Console appearances in search results. Measures SEO visibility and brand discoverability.',
+            totalClicks: 'Clicks from Google search to the website. Signals how compelling FinTalent appears in search results.',
+            avgEngagement: 'Average GA4 engagement time per session. Indicates how long visitors stay and explore content.',
+            averageCtr: 'is the percentage of impressions that resulted in a click',
+            barChart: 'Month-over-month comparison of search impressions (visibility) vs clicks (interest) from Google Search Console.',
+            doughnutChart: 'GA4 traffic channel mix — Direct, Organic Search, Referral, and other sources for this month.',
+            insights: 'Curated monthly observations drawn from GA4 and GSC data to highlight MoM changes and signals.',
+            topPages: 'Most visited pages on fintalent.com. Career Opportunities is a key signal for talent acquisition.',
+            searchQueries: 'Top organic search terms that led users to FinTalent. Brand vs non-brand queries indicate SEO maturity.',
+            geoMarkets: 'Top countries visiting the site. Shows employer brand geographic reach in target talent markets.',
+            recommendations: 'Prioritized task checklist grouped by focus categories like Content, UX, Journey, Sourcing, and Analytics.'
+        };
+
+        const CHANNEL_DESCRIPTIONS = {
+            'Direct': 'Direct traffic represents users typing the URL directly, using bookmarks, or clicking non-tracked links. This indicates extremely strong, established corporate brand awareness.',
+            'Org. Search': 'Organic Search traffic represents visitors finding FinTalent via search engines like Google. This reflects candidate intent and growing organic SEO visibility.',
+            'Referral': 'Referral traffic comes from clicks on external sites, indicating candidate discovery through other directories or corporate link partnerships.',
+            'Org. Social': 'Organic Social traffic represents candidate clicks coming from LinkedIn posts and other social media employer-branding activities.',
+            'Other': 'Other sources represent campaign codes, social platforms, and other miscellaneous direct search queries.'
+        };
 
         const MONTHLY_DATA = {
 
@@ -274,7 +368,6 @@
                 reportingPeriod: 'Apr 1, 2026 – Apr 30, 2026 (30 days)',
 
                 // Previous month values for bar chart comparison
-                // (March vs April) — no previous data for first month
                 prevMonthLabel: 'March',
                 prevImpressions: null,   // null = no previous data available
                 prevClicks: null,
@@ -289,7 +382,7 @@
                 impressions: 175,
                 clicks: 5,
 
-                // Doughnut chart (traffic sources — from GA4 screenshot)
+                // Doughnut chart (traffic sources)
                 trafficLabels: ['Direct', 'Org. Social', 'Org. Search', 'Other'],
                 trafficData:   [80.77, 11.54, 6.73, 0.96],
                 trafficColors: ['#102649', '#F7C100', '#007DB6', '#94a3b8'],
@@ -304,14 +397,23 @@
                 ],
 
                 // Deep Dive data
-                topPages: ['Home', 'Career Opportunities', 'Hire Talent', 'Services'],
+                topPages: ['Home', 'Career opportunities', 'Hire Talent', 'Services'],
                 searchQueries: ['fintalent', 'fintalent company', 'fin talent'],
                 ctr: '2.9%',
                 geoMarkets: [
                     { code: 'EG', name: 'Egypt' },
-                    { code: 'US', name: 'United States' },
+                    { code: 'US', name: 'USA' },
                     { code: 'SA', name: 'Saudi Arabia' }
-                ]
+                ],
+
+                executiveAnalysis: {
+                    headline: 'Baseline month established — FinTalent is live with strong initial discovery and brand-driven traffic.',
+                    health: 'on-track',
+                    win: '102 active users in the first tracking month — Career opportunities ranks among top visited pages, confirming candidates are finding us.',
+                    watch: 'Employer brand reach spans EG, US, and SA, but 81% direct traffic means growth depends heavily on existing brand awareness.',
+                    action: 'Build SEO foundations and enrich the Careers journey so future visitors convert beyond the homepage.'
+                },
+                recommendations: null
             },
 
             // ── MAY 2026 ────────────────────────────────────────────────
@@ -332,7 +434,7 @@
                 impressions: 511,
                 clicks: 14,
 
-                // Doughnut chart (traffic sources — from GA4 screenshot)
+                // Doughnut chart (traffic sources)
                 trafficLabels: ['Direct', 'Org. Search', 'Referral', 'Other'],
                 trafficData:   [81.01, 8.86, 3.80, 6.33],
                 trafficColors: ['#102649', '#007DB6', '#D75735', '#94a3b8'],
@@ -346,47 +448,31 @@
                     { icon: 'info', text: 'CTR at 2.7% — healthy click-through rate maintained.' }
                 ],
 
-                topPages: ['Home', 'Career Opportunities', 'Hire Talent', 'Services'],
+                topPages: ['Home', 'Career opportunities', 'Hire Talent', 'Services'],
                 searchQueries: ['fintalent', 'fintalent company', 'fin talent'],
                 ctr: '2.7%',
                 geoMarkets: [
-                    { code: 'US', name: 'United States' },
+                    { code: 'US', name: 'USA' },
                     { code: 'EG', name: 'Egypt' }
+                ],
+
+                executiveAnalysis: {
+                    headline: 'Search visibility surged, but visitor quality and engagement need attention.',
+                    health: 'needs-attention',
+                    win: 'Impressions +192% and clicks +180% — organic search is working and FinTalent is being discovered beyond direct visits.',
+                    watch: 'Active users fell 24.5% and engagement dropped to 14s; 81% direct traffic and brand-only queries suggest shallow Careers engagement in US/EG markets.',
+                    action: 'Strengthen Careers page content, improve time-on-page, and target non-brand finance talent keywords in Egypt, Saudi Arabia, and the US.'
+                },
+                recommendations: [
+                    { category: 'SEO & Content', text: 'Publish 2 SEO articles targeting non-brand finance talent keywords (e.g. "finance careers Egypt", "fintech jobs MENA").' },
+                    { category: 'Careers Page UX', text: 'Refresh Career Opportunities page with clearer role descriptions, employee stories, and a streamlined apply path.' },
+                    { category: 'Navigation Flow', text: 'Reduce homepage bounce by linking prominently to Careers and Services from the hero section.' },
+                    { category: 'Channel Sourcing', text: 'Diversify traffic beyond 81% direct — invest in LinkedIn organic content and referral partnerships.' },
+                    { category: 'Sourcing Analytics', text: 'Track Careers page engagement separately in GA4 to measure candidate journey improvements next month.' }
                 ]
             }
-
-            // ── JUNE 2026 (TEMPLATE — uncomment & fill when ready) ──────
-            // june2026: {
-            //     label: 'June 2026',
-            //     shortLabel: 'June',
-            //     reportingPeriod: 'Jun 1, 2026 – Jul 1, 2026 (30 days)',
-            //     prevMonthLabel: 'May',
-            //     prevImpressions: 511,
-            //     prevClicks: 14,
-            //     activeUsers:      { value: '___', change: '___%', trend: 'up' },
-            //     totalImpressions: { value: '___', change: '___%', trend: 'up' },
-            //     totalClicks:      { value: '___', change: '___%', trend: 'up' },
-            //     avgEngagement:    { value: '___s', change: '___%', trend: 'up' },
-            //     impressions: 0,
-            //     clicks: 0,
-            //     trafficLabels: ['Direct', 'Org. Search', 'Referral', 'Other'],
-            //     trafficData:   [0, 0, 0, 0],
-            //     trafficColors: ['#102649', '#007DB6', '#D75735', '#94a3b8'],
-            //     trafficCenter: '0%',
-            //     insights: [
-            //         { icon: 'info', text: 'Add insights here.' }
-            //     ],
-            //     topPages: ['Home'],
-            //     searchQueries: ['fintalent'],
-            //     ctr: '0%',
-            //     geoMarkets: [
-            //         { code: 'US', name: 'United States' },
-            //         { code: 'EG', name: 'Egypt' }
-            //     ]
-            // }
         };
 
-        // Order of months in the selector (newest last = rightmost)
         const MONTH_ORDER = ['april2026', 'may2026'];
 
         // =====================================================================
@@ -396,7 +482,7 @@
         // Chart.js defaults
         Chart.defaults.color = '#64748b';
         Chart.defaults.font.family = "'Inter', sans-serif";
-        Chart.defaults.font.size = 12;
+        Chart.defaults.font.size = 10;
         Chart.register(ChartDataLabels);
 
         // Center text plugin for doughnut
@@ -407,7 +493,7 @@
                     var ctx = chart.ctx;
                     var centerConfig = chart.config.options.plugins.centerText;
                     ctx.restore();
-                    ctx.font = "bold 36px 'Outfit', sans-serif";
+                    ctx.font = "bold 28px 'Outfit', sans-serif";
                     ctx.textBaseline = 'middle';
                     ctx.fillStyle = '#102649';
                     var text = centerConfig.text;
@@ -422,29 +508,103 @@
         };
         Chart.register(centerTextPlugin);
 
-        let barChartInstance = null;
-        let doughnutChartInstance = null;
-        let currentMonthKey = MONTH_ORDER[MONTH_ORDER.length - 1]; // Default to latest month
+        // State variables
+        let execBarChartInstance = null;
+        let execDoughnutChartInstance = null;
+        let currentMonthKey = MONTH_ORDER[MONTH_ORDER.length - 1];
 
-        // Tab switch logic
-        function switchTab(tab) {
-            const isOverview = tab === 'overview';
-            const paneOverview = document.getElementById('pane-overview');
-            const paneDetails = document.getElementById('pane-details');
-            const btnOverview = document.getElementById('btn-overview');
-            const btnDetails = document.getElementById('btn-details');
+        const latestMonthKey = () => MONTH_ORDER[MONTH_ORDER.length - 1];
 
-            if (isOverview) {
-                paneOverview.classList.remove('inactive'); paneOverview.classList.add('active');
-                paneDetails.classList.remove('active'); paneDetails.classList.add('inactive');
-                btnOverview.classList.add('active-tab'); btnOverview.classList.remove('text-slate-500');
-                btnDetails.classList.remove('active-tab'); btnDetails.classList.add('text-slate-500');
-            } else {
-                paneOverview.classList.remove('active'); paneOverview.classList.add('inactive');
-                paneDetails.classList.remove('inactive'); paneDetails.classList.add('active');
-                btnOverview.classList.remove('active-tab'); btnOverview.classList.add('text-slate-500');
-                btnDetails.classList.add('active-tab'); btnDetails.classList.remove('text-slate-500');
+        // Tooltip generation helper
+        function infoIcon(text) {
+            const safeText = text.replace(/"/g, '&quot;');
+            return `<span class="info-tip">
+                <button type="button" class="info-tip-btn" tabindex="0" aria-label="More information">i</button>
+                <span class="info-tip-popup" role="tooltip">${safeText}</span>
+            </span>`;
+        }
+
+        function sectionHeader(title, tooltipKey) {
+            return `${title} ${infoIcon(SECTION_TOOLTIPS[tooltipKey])}`;
+        }
+
+        function healthBadge(status) {
+            const config = {
+                'on-track': { label: 'On Track', cls: 'health-on-track' },
+                'needs-attention': { label: 'Needs Attention', cls: 'health-needs-attention' },
+                'at-risk': { label: 'At Risk', cls: 'health-at-risk' }
+            };
+            const c = config[status] || config['on-track'];
+            return `<span class="text-[0.65rem] sm:text-[0.7rem] font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full ${c.cls}">${c.label}</span>`;
+        }
+
+        function renderAnalysisBullet(chipLabel, chipClass, bulletClass, text) {
+            return `
+                <div class="bullet-${bulletClass} bg-slate-50/50 rounded-xl px-4 py-3 border border-slate-100 flex items-start gap-3">
+                    <span class="text-[0.65rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${chipClass} flex-shrink-0 mt-0.5">${chipLabel}</span>
+                    <p class="text-sm text-slate-700 font-medium leading-relaxed">${text}</p>
+                </div>`;
+        }
+
+        function renderExecutiveAnalysis(d) {
+            const ea = d.executiveAnalysis;
+            if (!ea) return;
+
+            document.getElementById('executiveAnalysisSection').innerHTML = `
+                <div class="flex items-center justify-between gap-4 mb-3 border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Executive Summary</h2>
+                        ${infoIcon(SECTION_TOOLTIPS.executiveAnalysis)}
+                    </div>
+                    ${healthBadge(ea.health)}
+                </div>
+                <p class="text-base sm:text-lg font-heading font-extrabold text-beacon-navy leading-snug mb-4">${ea.headline}</p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    ${renderAnalysisBullet('Win', 'chip-win', 'win', ea.win)}
+                    ${renderAnalysisBullet('Watch', 'chip-watch', 'watch', ea.watch)}
+                    ${renderAnalysisBullet('Action', 'chip-action', 'action', ea.action)}
+                </div>`;
+        }
+
+        function categoryClass(cat) {
+            const config = {
+                'SEO & Content': 'bg-beacon-navy/10 text-beacon-navy border border-beacon-navy/20',
+                'Careers Page UX': 'bg-beacon-orange/10 text-beacon-orange border border-beacon-orange/20',
+                'Navigation Flow': 'bg-amber-50 text-amber-800 border border-amber-200',
+                'Channel Sourcing': 'bg-beacon-blue/10 text-beacon-blue border border-beacon-blue/20',
+                'Sourcing Analytics': 'bg-slate-100 text-slate-700 border border-slate-200'
+            };
+            return config[cat] || 'bg-slate-100 text-slate-700 border border-slate-200';
+        }
+
+        function renderRecommendations(d, monthKey) {
+            const container = document.getElementById('execRecommendationsSection');
+            if (!container) return;
+
+            const isLatest = monthKey === latestMonthKey();
+            const recs = d.recommendations;
+
+            if (!isLatest || !recs || recs.length === 0) {
+                container.innerHTML = '';
+                return;
             }
+
+            container.innerHTML = `
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm border-l-4 border-l-beacon-orange w-full">
+                    <div class="flex items-center gap-2 mb-4">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Recommended Next Steps</h2>
+                        ${infoIcon(SECTION_TOOLTIPS.recommendations)}
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                        ${recs.map(r => `
+                            <div class="flex flex-col gap-2.5 bg-slate-50 rounded-xl px-4 py-3.5 border border-slate-100 hover:border-slate-200 hover:bg-white transition-all duration-300 shadow-sm">
+                                <span class="text-[0.6rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${categoryClass(r.category)} w-fit">
+                                    ${r.category}
+                                </span>
+                                <p class="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">${r.text}</p>
+                            </div>`).join('')}
+                    </div>
+                </div>`;
         }
 
         // Build month selector buttons
@@ -462,12 +622,12 @@
             });
         }
 
-        // Trend arrow SVGs
+        // Trend arrow helper
         function trendArrow(trend) {
             if (trend === 'up') {
-                return `<svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>`;
+                return `<svg class="w-3 h-3 mr-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>`;
             } else if (trend === 'down') {
-                return `<svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>`;
+                return `<svg class="w-3 h-3 mr-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>`;
             }
             return '';
         }
@@ -478,7 +638,7 @@
             return 'metric-trend-neutral';
         }
 
-        // Insight icon
+        // Insight icon helper
         function insightIcon(type) {
             const icons = {
                 up: `<svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>`,
@@ -491,75 +651,104 @@
             return icons[type] || icons.info;
         }
 
-        function renderMetricCard(label, metric) {
+        // Render card function (supporting responsive layout parameters)
+        function renderMetricCard(label, metric, tooltipKey, isFifth = false) {
             const changeBadge = metric.change
-                ? `<span class="text-sm font-bold ${trendClass(metric.trend)} px-2.5 py-1 rounded-md flex items-center">${trendArrow(metric.trend)}${metric.change}</span>`
-                : `<span class="text-sm font-bold metric-trend-neutral px-2.5 py-1 rounded-md">Baseline</span>`;
+                ? `<span class="text-[10px] sm:text-xs font-bold ${trendClass(metric.trend)} px-2 py-0.5 rounded-lg flex items-center shadow-sm">${trendArrow(metric.trend)}${metric.change}</span>`
+                : `<span class="text-[10px] sm:text-xs font-bold metric-trend-neutral px-2 py-0.5 rounded-lg shadow-sm border border-slate-200/50">Baseline</span>`;
+            
             return `
-                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:border-beacon-navy/30 transition-all duration-300 cursor-pointer">
-                    <p class="text-slate-500 text-sm font-semibold uppercase tracking-wider mb-2">${label}</p>
+                <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between min-h-[95px] sm:min-h-[105px] ${isFifth ? 'col-span-2 md:col-span-1' : ''}">
+                    <p class="text-slate-500 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 flex-wrap">
+                        ${label}
+                        ${infoIcon(SECTION_TOOLTIPS[tooltipKey])}
+                    </p>
                     <div class="flex items-end justify-between">
-                        <span class="text-4xl font-heading font-bold text-beacon-navy">${metric.value}</span>
+                        <span class="text-2xl sm:text-3xl font-heading font-black text-beacon-navy tracking-tight">${metric.value}</span>
                         ${changeBadge}
                     </div>
                 </div>`;
         }
 
-        // Render the full dashboard for a given month
+        // Render Dashboard 
         function renderDashboard(monthKey) {
             const d = MONTHLY_DATA[monthKey];
             if (!d) return;
 
-            // Header
+            // Reset interaction box
+            const box = document.getElementById('channelAnalysisBox');
+            if (box) {
+                box.innerHTML = 'Click a traffic channel slice or list item to explore interaction insights.';
+                box.className = 'mt-4 bg-slate-50 border border-slate-100 rounded-xl p-3 text-[11px] text-slate-500 font-semibold text-center transition-all duration-300 min-h-[65px] flex items-center justify-center';
+            }
+
+            // Global Headers
             document.getElementById('headerMonth').textContent = d.label;
             document.getElementById('reportingText').textContent = d.reportingPeriod;
+            renderExecutiveAnalysis(d);
 
-            // Metrics
-            document.getElementById('metricsGrid').innerHTML =
-                renderMetricCard('Active Users', d.activeUsers) +
-                renderMetricCard('Total Impressions', d.totalImpressions) +
-                renderMetricCard('Total Clicks', d.totalClicks) +
-                renderMetricCard('Avg Engagement', d.avgEngagement);
+            // CTR Calculation
+            const prevCtr = d.prevClicks ? (d.prevClicks / d.prevImpressions * 100) : null;
+            const currentCtr = (d.clicks / d.impressions * 100);
+            const ctrChange = prevCtr ? `${Math.abs(currentCtr - prevCtr).toFixed(1)}%` : null;
+            const ctrTrend = prevCtr ? (currentCtr >= prevCtr ? 'up' : 'down') : 'neutral';
+            const ctrMetric = { value: d.ctr, change: ctrChange, trend: ctrTrend };
 
-            // Doughnut title
-            document.getElementById('doughnutTitle').textContent = `Traffic Share (${d.shortLabel})`;
+            // Metrics Grid (Active Users, Impressions, Clicks, Engagement, CTR)
+            document.getElementById('execMetricsGrid').innerHTML =
+                renderMetricCard('Active Users', d.activeUsers, 'activeUsers') +
+                renderMetricCard('Total Impressions', d.totalImpressions, 'totalImpressions') +
+                renderMetricCard('Total Clicks', d.totalClicks, 'totalClicks') +
+                renderMetricCard('Avg Engagement', d.avgEngagement, 'avgEngagement') +
+                renderMetricCard('Average CTR', ctrMetric, 'averageCtr', true);
 
-            // Insights
-            document.getElementById('insightsPanel').innerHTML = d.insights.map(i => `
-                <div class="flex items-start gap-3 bg-slate-50 rounded-xl p-3.5 border border-slate-100">
+            document.getElementById('execBarChartHeader').innerHTML = sectionHeader('Impressions vs Clicks (MoM)', 'barChart');
+            document.getElementById('execDoughnutTitle').innerHTML = sectionHeader(`Google Analytics Traffic share`, 'doughnutChart');
+
+            // Key Insights Panel
+            document.getElementById('execInsightsPanel').innerHTML = d.insights.map(i => `
+                <div class="flex items-start gap-3 bg-slate-50 rounded-xl p-3 border border-slate-100 hover:border-slate-200/70 transition-all duration-200">
                     ${insightIcon(i.icon)}
-                    <p class="text-sm text-slate-700 font-medium leading-relaxed">${i.text}</p>
+                    <p class="text-xs text-slate-600 font-semibold leading-relaxed">${i.text}</p>
                 </div>`).join('');
 
-            // Deep Dive — Top Pages
-            const topColors = ['bg-beacon-orange', 'bg-beacon-blue', 'bg-beacon-yellow'];
-            document.getElementById('topPagesContainer').innerHTML = d.topPages.map((page, i) => {
-                const dot = i < topColors.length ? `<span class="w-2 h-2 rounded-full ${topColors[i]}"></span>` : '';
-                return `<span class="bg-slate-100 text-slate-700 text-sm font-semibold px-4 py-2 rounded-xl border border-slate-200 shadow-sm flex items-center gap-1.5">${dot}${page}</span>`;
-            }).join('');
+            // Top Pages with Rank Badges in Order
+            document.getElementById('execTopPagesHeader').innerHTML = `Most Visited Pages (In Order) ${infoIcon(SECTION_TOOLTIPS.topPages)}`;
+            document.getElementById('execTopPagesContainer').innerHTML = d.topPages.map((page, idx) => `
+                <div class="flex items-center justify-between bg-slate-50 rounded-xl px-3.5 py-3 border border-slate-100 hover:border-beacon-blue/30 transition-all duration-200 shadow-sm">
+                    <span class="text-xs font-bold text-slate-700 truncate capitalize">${page}</span>
+                    <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-beacon-navy text-white flex-shrink-0 shadow-sm">
+                        #${idx + 1}
+                    </span>
+                </div>`).join('');
 
-            // Deep Dive — Search Queries
-            document.getElementById('searchQueriesContainer').innerHTML = d.searchQueries.map(q =>
-                `<span class="bg-slate-50 text-slate-600 text-sm font-medium px-3.5 py-1.5 rounded-lg border border-slate-200/70 hover:border-beacon-orange transition-all duration-300">${q}</span>`
+            // Search Queries
+            document.getElementById('execSearchQueriesContainer').innerHTML = d.searchQueries.map(q =>
+                `<span class="bg-slate-50 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-200/70 hover:border-beacon-orange hover:bg-white transition-all duration-300 cursor-pointer shadow-sm">${q}</span>`
             ).join('');
 
-            // Deep Dive — CTR badge
-            document.getElementById('ctrBadge').textContent = `CTR: ${d.ctr}`;
+            // Geo Markets with CDN Flags
+            document.getElementById('execGeoMarketsHeader').innerHTML = `
+                <svg class="w-5 h-5 text-beacon-yellow flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h2m4-3.5a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">Geographical Markets</h3>
+                ${infoIcon(SECTION_TOOLTIPS.geoMarkets)}`;
 
-            // Deep Dive — Geo Markets
-            document.getElementById('geoMarketsContainer').innerHTML = d.geoMarkets.map(g => `
-                <div class="flex items-center gap-3">
-                    <div class="flex items-center justify-center w-9 h-9 rounded-full bg-slate-100 text-slate-700 font-bold border border-slate-200 text-xs">${g.code}</div>
-                    <span class="text-sm font-semibold text-slate-700">${g.name}</span>
+            document.getElementById('execCtrBadge').textContent = `CTR: ${d.ctr}`;
+            document.getElementById('execGeoMarketsContainer').innerHTML = d.geoMarkets.map(g => `
+                <div class="flex items-center gap-3 bg-slate-50 border border-slate-200/50 rounded-xl px-4 py-3.5 shadow-sm hover:border-beacon-blue/30 hover:bg-white transition-all duration-300">
+                    <img src="https://flagcdn.com/${g.code.toLowerCase()}.svg" alt="${g.name}" class="w-7 h-5 object-cover rounded shadow-sm border border-slate-200/50 flex-shrink-0" onerror="this.outerHTML='<span class=\'text-lg flex-shrink-0\'>🇺🇸</span>'">
+                    <span class="text-xs font-black text-slate-700 uppercase">${g.name}</span>
                 </div>`).join('');
 
-            // ----- CHARTS -----
-            renderBarChart(d);
-            renderDoughnutChart(d);
+            renderBarChart(d, 'execBarChart');
+            renderDoughnutChart(d, 'execDoughnutChart');
+            renderRecommendations(d, monthKey);
         }
 
-        function renderBarChart(d) {
-            if (barChartInstance) barChartInstance.destroy();
+        function renderBarChart(d, canvasId) {
+            if (execBarChartInstance) {
+                execBarChartInstance.destroy();
+            }
 
             // Determine labels and data based on whether we have previous month data
             let labels, impressionsData, clicksData;
@@ -576,20 +765,20 @@
             const barOptions = {
                 responsive: true,
                 maintainAspectRatio: false,
-                layout: { padding: { top: 30 } },
+                layout: { padding: { top: 20 } },
                 plugins: {
                     legend: {
                         position: 'top', align: 'end',
-                        labels: { boxWidth: 10, usePointStyle: true, color: '#475569', padding: 15, font: { weight: '600' } }
+                        labels: { boxWidth: 8, usePointStyle: true, color: '#475569', padding: 10, font: { weight: '700', size: 10 } }
                     },
                     tooltip: {
                         backgroundColor: '#1e293b', titleColor: '#fff', bodyColor: '#f1f5f9',
                         padding: 10, boxPadding: 4, cornerRadius: 8
                     },
                     datalabels: {
-                        anchor: 'end', align: 'end', offset: 2,
+                        anchor: 'end', align: 'end', offset: 1,
                         color: '#334155',
-                        font: { weight: '700', size: 11, family: "'Inter', sans-serif" },
+                        font: { weight: '700', size: 10, family: "'Inter', sans-serif" },
                         formatter: (value) => value >= 1000 ? value.toLocaleString() : value,
                         textAlign: 'center'
                     }
@@ -598,18 +787,18 @@
                     y: {
                         type: 'linear', display: true, position: 'left',
                         grid: { color: '#e2e8f0', borderDash: [4, 4] },
-                        border: { display: false }, beginAtZero: true, grace: '30%'
+                        border: { display: false }, beginAtZero: true, grace: '20%'
                     },
                     y1: {
                         type: 'linear', display: true, position: 'right',
                         grid: { display: false }, border: { display: false },
-                        beginAtZero: true, grace: '30%'
+                        beginAtZero: true, grace: '20%'
                     },
                     x: { grid: { display: false }, border: { display: false } }
                 }
             };
 
-            barChartInstance = new Chart(document.getElementById('barChart'), {
+            execBarChartInstance = new Chart(document.getElementById(canvasId), {
                 type: 'bar',
                 data: {
                     labels: labels,
@@ -618,13 +807,13 @@
                             label: 'Impressions',
                             data: impressionsData,
                             backgroundColor: '#102649',
-                            borderRadius: 6, barPercentage: 0.55, categoryPercentage: 0.85
+                            borderRadius: 6, barPercentage: 0.45, categoryPercentage: 0.8
                         },
                         {
                             label: 'Clicks',
                             data: clicksData,
                             backgroundColor: '#D75735',
-                            borderRadius: 6, barPercentage: 0.55, categoryPercentage: 0.85,
+                            borderRadius: 6, barPercentage: 0.45, categoryPercentage: 0.8,
                             yAxisID: 'y1'
                         }
                     ]
@@ -633,10 +822,13 @@
             });
         }
 
-        function renderDoughnutChart(d) {
-            if (doughnutChartInstance) doughnutChartInstance.destroy();
+        // Render Doughnut with custom interactive HTML legend
+        function renderDoughnutChart(d, canvasId) {
+            if (execDoughnutChartInstance) {
+                execDoughnutChartInstance.destroy();
+            }
 
-            doughnutChartInstance = new Chart(document.getElementById('doughnutChart'), {
+            execDoughnutChartInstance = new Chart(document.getElementById(canvasId), {
                 type: 'doughnut',
                 data: {
                     labels: d.trafficLabels,
@@ -652,24 +844,60 @@
                     maintainAspectRatio: false,
                     layout: { padding: 10 },
                     plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: { boxWidth: 10, usePointStyle: true, color: '#475569', padding: 12, font: { size: 11, weight: '600' } }
-                        },
+                        legend: { display: false },
                         tooltip: { backgroundColor: '#1e293b', cornerRadius: 8 },
                         datalabels: { display: false },
                         centerText: { text: d.trafficCenter }
                     },
-                    cutout: '75%',
-                    radius: '95%'
+                    cutout: '72%',
+                    radius: '90%',
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            triggerDoughnutClick(elements[0].index);
+                        }
+                    }
                 }
             });
+
+            // Render custom HTML legend list
+            const legendContainer = document.getElementById('customLegendContainer');
+            if (legendContainer) {
+                legendContainer.innerHTML = d.trafficLabels.map((label, idx) => {
+                    const val = d.trafficData[idx];
+                    const color = d.trafficColors[idx];
+                    return `
+                        <button type="button" class="flex items-center justify-between gap-4 px-3 py-1.5 rounded-lg border border-slate-100 hover:border-beacon-blue/30 hover:bg-slate-50 transition-all duration-200 text-left w-full shadow-sm" onclick="triggerDoughnutClick(${idx})">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: ${color}"></span>
+                                <span class="text-xs font-bold text-slate-700">${label}</span>
+                            </div>
+                            <span class="text-xs font-extrabold text-slate-500">${val}%</span>
+                        </button>`;
+                }).join('');
+            }
         }
 
-        // Select a month
+        // Dynamic Interactive Legend/Slice Clicking Action
+        function triggerDoughnutClick(index) {
+            const label = execDoughnutChartInstance.data.labels[index];
+            const val = execDoughnutChartInstance.data.datasets[0].data[index];
+            const desc = CHANNEL_DESCRIPTIONS[label] || 'Acquisition channel data.';
+            
+            const box = document.getElementById('channelAnalysisBox');
+            box.innerHTML = `
+                <div class="text-left animate-fade-up w-full">
+                    <div class="flex items-center gap-1.5 font-black text-beacon-navy mb-1 uppercase tracking-wider text-[11px]">
+                        <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${execDoughnutChartInstance.data.datasets[0].backgroundColor[index]}"></span>
+                        ${label} — ${val}% of Traffic
+                    </div>
+                    <p class="text-slate-600 font-medium text-xs leading-relaxed">${desc}</p>
+                </div>`;
+            box.className = 'mt-4 bg-blue-50/30 border border-beacon-blue/20 rounded-xl p-3.5 transition-all duration-300 min-h-[75px] flex items-center justify-start';
+        }
+
+        // Select a Month
         function selectMonth(key) {
             currentMonthKey = key;
-            // Update button states
             MONTH_ORDER.forEach(k => {
                 const btn = document.getElementById(`month-btn-${k}`);
                 if (btn) btn.classList.toggle('active', k === key);
