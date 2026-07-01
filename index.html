@@ -356,6 +356,7 @@
             'Org. Search': 'Organic Search traffic represents visitors finding FinTalent via search engines like Google. This reflects candidate intent and growing organic SEO visibility.',
             'Referral': 'Referral traffic comes from clicks on external sites, indicating candidate discovery through other directories or corporate link partnerships.',
             'Org. Social': 'Organic Social traffic represents candidate clicks coming from LinkedIn posts and other social media employer-branding activities.',
+            'AI Assistant': 'AI Assistant traffic represents visitors discovering FinTalent through AI search tools and assistants.',
             'Other': 'Other sources represent campaign codes, social platforms, and other miscellaneous direct search queries.'
         };
 
@@ -463,17 +464,65 @@
                     watch: 'Active users fell 24.5% and engagement dropped to 14s; 81% direct traffic and brand-only queries suggest shallow Careers engagement in US/EG markets.',
                     action: 'Strengthen Careers page content, improve time-on-page, and target non-brand finance talent keywords in Egypt, Saudi Arabia, and the US.'
                 },
+                recommendations: null
+            },
+
+            // ── JUNE 2026 ───────────────────────────────────────────────
+            june2026: {
+                label: 'June 2026',
+                shortLabel: 'June',
+                reportingPeriod: 'June 1, 2026 – July 1, 2026 (30 days)',
+
+                prevMonthLabel: 'May',
+                prevImpressions: 511,
+                prevClicks: 14,
+
+                activeUsers:      { value: '61',  change: '-20.8%', trend: 'down' },
+                totalImpressions: { value: '177', change: '-65.4%', trend: 'down' },
+                totalClicks:      { value: '9',   change: '-35.7%', trend: 'down' },
+                avgEngagement:    { value: '26s', change: '85.7%', trend: 'up' },
+
+                impressions: 177,
+                clicks: 9,
+
+                // Doughnut chart (traffic sources)
+                trafficLabels: ['Direct', 'Org. Search', 'Org. Social', 'AI Assistant', 'Referral'],
+                trafficData:   [54.84, 17.74, 12.90, 9.68, 3.23],
+                trafficColors: ['#102649', '#007DB6', '#F7C100', '#94a3b8', '#D75735'],
+                trafficCenter: '55%',
+
+                insights: [
+                    { icon: 'up', text: 'Average engagement surged to 26s — quality of sessions improved.' },
+                    { icon: 'down', text: 'Total impressions dropped by 65.4% (511 → 177) — organic reach cooled.' },
+                    { icon: 'info', text: 'AI Assistants drove nearly 10% of traffic, signaling new discovery behaviors.' },
+                    { icon: 'down', text: 'Active users dipped to 61, though click-through rates strengthened to 5.1%.' },
+                    { icon: 'tip', text: 'Capitalize on AI Assistant traffic by optimizing content for AI overviews.' }
+                ],
+
+                topPages: ['Home', 'Career opportunities', 'Services', 'Hire Talent'],
+                searchQueries: ['fintalent', 'fintalent company', 'fin talent'],
+                ctr: '5.1%',
+                geoMarkets: [
+                    { code: 'EG', name: 'Egypt' },
+                    { code: 'AE', name: 'UAE' }
+                ],
+
+                executiveAnalysis: {
+                    headline: 'Engagement metrics strengthened as users spent more time, despite lower traffic volume.',
+                    health: 'on-track',
+                    win: 'Engagement nearly doubled to 26 seconds and click-through rates increased to 5.1%, indicating highly relevant visitors.',
+                    watch: 'Total impressions and active users decreased, and direct traffic dropped from 81% to 55%.',
+                    action: 'Optimize content structure for emerging AI Assistant discovery and investigate the cause of the lower search impressions.'
+                },
                 recommendations: [
-                    { category: 'SEO & Content', text: 'Publish 2 SEO articles targeting non-brand finance talent keywords (e.g. "finance careers Egypt", "fintech jobs MENA").' },
-                    { category: 'Careers Page UX', text: 'Refresh Career Opportunities page with clearer role descriptions, employee stories, and a streamlined apply path.' },
-                    { category: 'Navigation Flow', text: 'Reduce homepage bounce by linking prominently to Careers and Services from the hero section.' },
-                    { category: 'Channel Sourcing', text: 'Diversify traffic beyond 81% direct — invest in LinkedIn organic content and referral partnerships.' },
-                    { category: 'Sourcing Analytics', text: 'Track Careers page engagement separately in GA4 to measure candidate journey improvements next month.' }
+                    { category: 'SEO & Content', text: 'Optimize the Services page and Career profiles for AI search engines to capitalize on emerging traffic trends.' },
+                    { category: 'Channel Sourcing', text: 'Expand presence on LinkedIn (Org. Social) to build further momentum in the UAE market.' },
+                    { category: 'Careers Page UX', text: 'Ensure the Career opportunities page offers clear pathways for users spending more time on site.' }
                 ]
             }
         };
 
-        const MONTH_ORDER = ['april2026', 'may2026'];
+        const MONTH_ORDER = ['april2026', 'may2026', 'june2026'];
 
         // =====================================================================
         // RENDERING ENGINE
